@@ -1,0 +1,97 @@
+parameters file prep/forcefield.prm
+
+structure file psf prep/system.psf
+
+stream prep/sysinfo.str
+
+selection define lig and segid HYB resid 1
+selection define site1sub1 and selection lig atomnames C18A1 F1A1 F2A1 F3A1
+selection define site1sub2 and selection lig atomnames C18A2 C19A2 C20A2 C21A2 H13A2 C22A2 H14A2 C23A2 H15A2 H16A2 H17A2
+selection define site1sub3 and selection lig atomnames C18A3 C19A3 C20A3 C21A3 H13A3 C22A3 H14A3 C23A3 H15A3 H16A3 C24A3 F1A3 F2A3 F3A3
+selection define site1sub4 and selection lig atomnames C18A4 C19A4 C20A4 C21A4 C22A4 C23A4 H13A4 C24A4 H14A4 H15A4 H16A4 H17A4 H18A4 H19A4
+selection define site1sub5 and selection lig atomnames C18A5 C19A5 C20A5 C21A5 H13A5 C22A5 H14A5 C23A5 C24A5 H15A5 H16A5 H17A5 H18A5 H19A5
+selection define site1sub6 and selection lig atomnames C18A6 C19A6 C20A6 C21A6 H13A6 C22A6 H14A6 C23A6 H15A6 H16A6 C24A6 H17A6 H18A6 H19A6
+selection define site1sub7 and selection lig atomnames C18A7 C19A7 C20A7 C21A7 H13A7 C22A7 H14A7 C23A7 H15A7 H16A7 H17A7
+selection define site1sub8 and selection lig atomnames C18A8 C19A8 C20A8 C21A8 H13A8 C22A8 H14A8 C23A8 H15A8 H16A8 F1A8
+selection define site1sub9 and selection lig atomnames C18A9 C19A9 H13A9 H14A9 C20A9 C21A9 C22A9 H15A9 C23A9 H16A9 C24A9 H17A9 H18A9 H19A9
+selection define site2sub1 and selection lig atomnames C18B1 H13B1 H14B1 H15B1
+selection define site2sub2 and selection lig atomnames C18B2 C19B2 H13B2 H14B2 H15B2 H16B2 H17B2
+selection define site2sub3 and selection lig atomnames C18B3 H13B3 H14B3 O3B3 C19B3 H15B3 H16B3 H17B3
+selection define site2sub4 and selection lig atomnames C18B4 H13B4 C19B4 C20B4 H14B4 H15B4 H16B4 H17B4
+selection define site2sub5 and selection lig atomnames C18B5 H13B5 H14B5 C19B5 C20B5 C21B5 H15B5 C22B5 C23B5 H16B5 H17B5 C24B5 H18B5 H19B5
+selection print
+
+variables set temp 310.15
+
+coordinates velocity {temp}
+
+msld nblocks {nblocks}
+
+variables set prevblock 0
+variables set ii 1
+! ii -> site 
+while <= {ii} {nsites}
+   variables set jj 1
+   ! jj -> substituent 
+   while <= {jj} {nsubs{ii}}
+      variables calculate jp0 int + {jj} {prevblock}
+
+      msld call {jp0} site{ii}sub{jj}
+
+      variables calculate jj int + {jj} 1
+   endwhile
+   variables calculate prevblock int + {prevblock} {nsubs{ii}}
+   variables calculate ii int + {ii} 1
+endwhile
+
+!               B S   t0  tv  tm  fb   q
+   msld initialize 0 0 0 0 5 0 0
+
+variables set blockassign 0
+variables set prevblock 0
+variables set ii 1
+while <= {ii} {nsites}
+   variables set jj 1
+   variables set theta0 1
+   while <= {jj} {nsubs{ii}}
+      variables calculate jp0 int + {jj} {prevblock}
+
+!               B S   t0  tv  tm  fb   q
+      msld initialize {jp0} {ii} {theta0} 0 5 {lams{ii}s{jj}} 0
+
+      ! variables set theta0 -1 ! start all equal
+      variables calculate jj int + {jj} 1
+   endwhile
+   variables calculate prevblock int + {prevblock} {nsubs{ii}}
+   variables calculate ii int + {ii} 1
+endwhile
+   msld removescaling bond urey angle  impr 
+
+   msld softcore on
+   msld softcore14 off
+   ! pmel ex ! msld ewaldtype 2 ! default
+
+variables set prevblock 0
+variables set ii 1
+while <= {ii} {nsites}
+   variables set jj 1
+   while <= {jj} {nsubs{ii}}     ! jj and kk specify the substituents 
+      variables calculate jp0 int + {jj} {prevblock}
+      variables calculate kk int + {jj} 1
+      while <= {kk} {nsubs{ii}}
+         variables calculate kp0 int + {kk} {prevblock}
+         ! put bias potentials here (see manual https://github.com/RyanLeeHayes/BLaDE/blob/master/doc/MAIN.txt )
+         ! msld bias lambda1 lambda2 type const coef power 
+         !  
+         msld bias {jp0} {kp0} 6 0.0 {cs{ii}s{jj}s{ii}s{kk}} 0
+         msld bias {jp0} {kp0} 10 -5.56 {xs{ii}s{jj}s{ii}s{kk}} 0
+         msld bias {jp0} {kp0} 8 0.017 {ss{ii}s{jj}s{ii}s{kk}} 0
+         msld bias {kp0} {jp0} 10 -5.56 {xs{ii}s{kk}s{ii}s{jj}} 0
+         msld bias {kp0} {jp0} 8 0.017 {ss{ii}s{kk}s{ii}s{jj}} 0
+         variables calculate kk int + {kk} 1
+      endwhile
+      variables calculate jj int + {jj} 1
+   endwhile
+   variables calculate prevblock int + {prevblock} {nsubs{ii}}
+   variables calculate ii int + {ii} 1
+endwhile
