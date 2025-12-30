@@ -1,0 +1,15 @@
+CAT_4k.sdf      0   0
+CAT_4m.sdf      0   1
+CAT_4o.sdf      0   2
+CAT_4p.sdf      0   3
+CAT_13b.sdf     1   4
+CAT_13d.sdf     2   4
+CAT_13g.sdf     3   5
+CAT_13h.sdf     4   4
+CAT_13j.sdf     5   5
+CAT_13o.sdf     6   4
+CAT_17b.sdf     2   6
+CAT_17e.sdf     2   7
+CAT_17h.sdf     2   3
+CAT_17i.sdf     2   1
+CAT_24.sdf      2   8

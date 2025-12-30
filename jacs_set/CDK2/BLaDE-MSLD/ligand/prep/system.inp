@@ -1,0 +1,96 @@
+parameters file prep/forcefield.prm
+
+structure file psf prep/system.psf
+
+stream prep/sysinfo.str
+
+selection define lig and segid HYB resid 1
+selection define site1sub1 and selection lig atomnames H20A1
+selection define site1sub2 and selection lig atomnames CL1A2
+selection define site1sub3 and selection lig atomnames BR1A3
+selection define site1sub4 and selection lig atomnames C19A4 H20A4 H21A4 O2A4 H22A4
+selection define site1sub5 and selection lig atomnames S1A5 C19A5 H20A5 H21A5 H22A5
+selection define site1sub6 and selection lig atomnames O2A6 C19A6 H20A6 H21A6 H22A6
+selection define site2sub1 and selection lig atomnames H20B1
+selection define site2sub2 and selection lig atomnames O2B2 S1B2 O3B2 N6B2 H20B2 H21B2
+selection define site2sub3 and selection lig atomnames O2B3 H20B3
+selection define site2sub4 and selection lig atomnames O2B4 C19B4 N6B4 H20B4 H21B4
+selection define site2sub5 and selection lig atomnames C19B5 H20B5 H21B5 H22B5 O2B5
+selection define site2sub6 and selection lig atomnames O2B6 S1B6 O3B6 C19B6 H20B6 H21B6 H22B6
+selection define site2sub7 and selection lig atomnames O2B7 S1B7 C19B7 H20B7 H21B7 H22B7
+selection print
+
+variables set temp 300.0
+
+coordinates velocity {temp}
+
+msld nblocks {nblocks}
+
+variables set prevblock 0
+variables set ii 1
+! ii -> site 
+while <= {ii} {nsites}
+   variables set jj 1
+   ! jj -> substituent 
+   while <= {jj} {nsubs{ii}}
+      variables calculate jp0 int + {jj} {prevblock}
+
+      msld call {jp0} site{ii}sub{jj}
+
+      variables calculate jj int + {jj} 1
+   endwhile
+   variables calculate prevblock int + {prevblock} {nsubs{ii}}
+   variables calculate ii int + {ii} 1
+endwhile
+
+!               B S   t0  tv  tm  fb   q
+   msld initialize 0 0 0 0 5 0 0
+
+variables set blockassign 0
+variables set prevblock 0
+variables set ii 1
+while <= {ii} {nsites}
+   variables set jj 1
+   variables set theta0 1
+   while <= {jj} {nsubs{ii}}
+      variables calculate jp0 int + {jj} {prevblock}
+
+!               B S   t0  tv  tm  fb   q
+      msld initialize {jp0} {ii} {theta0} 0 5 {lams{ii}s{jj}} 0
+
+      ! variables set theta0 -1 ! start all equal
+      variables calculate jj int + {jj} 1
+   endwhile
+   variables calculate prevblock int + {prevblock} {nsubs{ii}}
+   variables calculate ii int + {ii} 1
+endwhile
+   msld removescaling bond urey angle  impr 
+
+   msld softcore on
+   msld softcore14 off
+   ! pmel ex ! msld ewaldtype 2 ! default
+
+variables set prevblock 0
+variables set ii 1
+while <= {ii} {nsites}
+   variables set jj 1
+   while <= {jj} {nsubs{ii}}     ! jj and kk specify the substituents 
+      variables calculate jp0 int + {jj} {prevblock}
+      variables calculate kk int + {jj} 1
+      while <= {kk} {nsubs{ii}}
+         variables calculate kp0 int + {kk} {prevblock}
+         ! put bias potentials here (see manual https://github.com/RyanLeeHayes/BLaDE/blob/master/doc/MAIN.txt )
+         ! msld bias lambda1 lambda2 type const coef power 
+         !  
+         msld bias {jp0} {kp0} 6 0.0 {cs{ii}s{jj}s{ii}s{kk}} 0
+         msld bias {jp0} {kp0} 10 -5.56 {xs{ii}s{jj}s{ii}s{kk}} 0
+         msld bias {jp0} {kp0} 8 0.017 {ss{ii}s{jj}s{ii}s{kk}} 0
+         msld bias {kp0} {jp0} 10 -5.56 {xs{ii}s{kk}s{ii}s{jj}} 0
+         msld bias {kp0} {jp0} 8 0.017 {ss{ii}s{kk}s{ii}s{jj}} 0
+         variables calculate kk int + {kk} 1
+      endwhile
+      variables calculate jj int + {jj} 1
+   endwhile
+   variables calculate prevblock int + {prevblock} {nsubs{ii}}
+   variables calculate ii int + {ii} 1
+endwhile

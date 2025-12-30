@@ -1,0 +1,1 @@
+{"temperature": 300.0, "p_type": "ISOTROPIC", "p_ref": 1.0, "sites": [[["F1A1"], ["CL1A2"], ["BR1A3"], ["I1A4"], ["C22A5", "H25A5", "H26A5", "H27A5"], ["C22A6", "H25A6", "H26A6", "H27A6", "C23A6", "H28A6", "H29A6"], ["H25A7"]], [["H25B1"], ["CL1B2"], ["C22B3", "H25B3", "H26B3", "H27B3"], ["F1B4"]]], "mini_nstep": 5000, "nstep": 250000}

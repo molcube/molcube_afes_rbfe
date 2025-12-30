@@ -1,0 +1,10 @@
+1a.sdf     0   0
+1b.sdf     1   0
+1c.sdf     2   0
+1d.sdf     3   0
+3a.sdf     4   0
+3b.sdf     5   0
+5.sdf      6   0
+6a.sdf     1   1
+6b.sdf     1   2
+6e.sdf     1   3
