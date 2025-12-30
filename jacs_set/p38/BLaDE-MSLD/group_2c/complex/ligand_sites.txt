@@ -1,0 +1,6 @@
+p38a_2k.sdf       0
+p38a_2l.sdf       1
+p38a_2m.sdf       2
+p38a_2o.sdf       3
+p38a_2s.sdf       4
+p38a_3fln.sdf     5

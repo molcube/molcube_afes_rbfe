@@ -1,0 +1,96 @@
+parameters file prep/forcefield.prm
+
+structure file psf prep/system.psf
+
+stream prep/sysinfo.str
+
+selection define lig and segid HYB resid 1
+selection define site1sub1 and selection lig atomnames C14A1 H9A1 C15A1 C16A1 H10A1 H11A1 H12A1 F1A1
+selection define site1sub2 and selection lig atomnames C14A2 H9A2 C15A2 C16A2 H10A2 H11A2 H12A2 C17A2 N4A2
+selection define site1sub3 and selection lig atomnames C14A3 H9A3 H10A3 H11A3
+selection define site1sub4 and selection lig atomnames C14A4 H9A4 H10A4 C15A4 H11A4 H12A4 H13A4
+selection define site1sub5 and selection lig atomnames C14A5 C15A5 H9A5 C16A5 H10A5 H11A5 H12A5 H13A5 H14A5 H15A5
+selection define site1sub6 and selection lig atomnames C14A6 C15A6 C16A6 C17A6 H9A6 H10A6 H11A6 H12A6 H13A6 H14A6 H15A6 H16A6 H17A6
+selection define site1sub7 and selection lig atomnames C14A7 H9A7 H10A7 C15A7 H11A7 C16A7 C17A7 H12A7 H13A7 H14A7 H15A7
+selection define site1sub8 and selection lig atomnames C14A8 H9A8 C15A8 C16A8 H10A8 H11A8 H12A8 H13A8
+selection define site1sub9 and selection lig atomnames C14A9 H9A9 C15A9 C16A9 H10A9 H11A9 C17A9 H12A9 H13A9 H14A9 H15A9
+selection define site1sub10 and selection lig atomnames C14A10 H9A10 C15A10 C16A10 H10A10 H11A10 C17A10 C18A10 H12A10 H13A10 H14A10 H15A10 H16A10 H17A10
+selection define site1sub11 and selection lig atomnames C14A11 C15A11 C16A11 H9A11 C17A11 C18A11 H10A11 H11A11 C19A11 H12A11 H13A11
+selection define site1sub12 and selection lig atomnames N4A12 H9A12 C14A12 H10A12 H11A12 C15A12 H12A12 H13A12 H14A12
+selection define site1sub13 and selection lig atomnames O3A13 C14A13 H9A13 H10A13 H11A13
+selection print
+
+variables set temp 300.0
+
+coordinates velocity {temp}
+
+msld nblocks {nblocks}
+
+variables set prevblock 0
+variables set ii 1
+! ii -> site 
+while <= {ii} {nsites}
+   variables set jj 1
+   ! jj -> substituent 
+   while <= {jj} {nsubs{ii}}
+      variables calculate jp0 int + {jj} {prevblock}
+
+      msld call {jp0} site{ii}sub{jj}
+
+      variables calculate jj int + {jj} 1
+   endwhile
+   variables calculate prevblock int + {prevblock} {nsubs{ii}}
+   variables calculate ii int + {ii} 1
+endwhile
+
+!               B S   t0  tv  tm  fb   q
+   msld initialize 0 0 0 0 5 0 0
+
+variables set blockassign 0
+variables set prevblock 0
+variables set ii 1
+while <= {ii} {nsites}
+   variables set jj 1
+   variables set theta0 1
+   while <= {jj} {nsubs{ii}}
+      variables calculate jp0 int + {jj} {prevblock}
+
+!               B S   t0  tv  tm  fb   q
+      msld initialize {jp0} {ii} {theta0} 0 5 {lams{ii}s{jj}} 0
+
+      ! variables set theta0 -1 ! start all equal
+      variables calculate jj int + {jj} 1
+   endwhile
+   variables calculate prevblock int + {prevblock} {nsubs{ii}}
+   variables calculate ii int + {ii} 1
+endwhile
+   msld removescaling bond urey angle  impr 
+
+   msld softcore on
+   msld softcore14 off
+   ! pmel ex ! msld ewaldtype 2 ! default
+
+variables set prevblock 0
+variables set ii 1
+while <= {ii} {nsites}
+   variables set jj 1
+   while <= {jj} {nsubs{ii}}     ! jj and kk specify the substituents 
+      variables calculate jp0 int + {jj} {prevblock}
+      variables calculate kk int + {jj} 1
+      while <= {kk} {nsubs{ii}}
+         variables calculate kp0 int + {kk} {prevblock}
+         ! put bias potentials here (see manual https://github.com/RyanLeeHayes/BLaDE/blob/master/doc/MAIN.txt )
+         ! msld bias lambda1 lambda2 type const coef power 
+         !  
+         msld bias {jp0} {kp0} 6 0.0 {cs{ii}s{jj}s{ii}s{kk}} 0
+         msld bias {jp0} {kp0} 10 -5.56 {xs{ii}s{jj}s{ii}s{kk}} 0
+         msld bias {jp0} {kp0} 8 0.017 {ss{ii}s{jj}s{ii}s{kk}} 0
+         msld bias {kp0} {jp0} 10 -5.56 {xs{ii}s{kk}s{ii}s{jj}} 0
+         msld bias {kp0} {jp0} 8 0.017 {ss{ii}s{kk}s{ii}s{jj}} 0
+         variables calculate kk int + {kk} 1
+      endwhile
+      variables calculate jj int + {jj} 1
+   endwhile
+   variables calculate prevblock int + {prevblock} {nsubs{ii}}
+   variables calculate ii int + {ii} 1
+endwhile
