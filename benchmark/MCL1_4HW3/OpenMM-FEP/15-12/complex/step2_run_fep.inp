@@ -1,0 +1,27 @@
+nstep       = 1250                              # Number of steps per iteration
+nstep_mini  = 100                               # Number of steps for minimization
+nstep_equi  = 500000                            # Number of steps for equilibration
+nstep_prod  = 2500000                           # Number of steps for production
+dt          = 0.002                             # Time-step (ps)
+
+niter_pos   = 40                                # Coordinates writing frequency (iteration)
+niter_chk   = 400                               # Checkpoint file writing frequency (iteration)
+
+nb_method   = PME                               # Nonbonded cut-off method
+sw_method   = NONE                              # vdW switching method
+lj_lrc      = YES                               # vdW long-range correction
+r_off       = 0.9                               # Cut-off distance (nm)
+ewald_Tol   = 0.0005                            # Ewald error tolerance
+
+temperature = 300.0                            # Temperature (K)
+fric_coeff  = 1                                 # Friction coefficient for Langevin dynamics
+
+pcouple     = YES                               # Turn on/off pressure coupling
+p_ref       = 1.0                               # Pressure (Pref or Pxx, Pyy, Pzz; bar)
+p_type      = ISOTROPIC                         # MonteCarloBarostat type
+p_freq      = 100                               # Pressure coupling frequency (steps)
+
+fep_lambdas         = AUTO                      # Lambda windows for FEP calculation
+fep_num_lambdas     = 11                        # Number of lambda windows
+fep_lambda_func     = DEFAULT                   # Lambda function [DEFAULT, NAMD, QUARTERS]
+fep_softcore_alpha  = 0.85                      # Alpha parameter of softcore sterics
