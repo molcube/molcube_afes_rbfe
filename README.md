@@ -1,6 +1,6 @@
 # MolCube AFES RBFE
 
-We conducted a benchmark study using MolCube’s Alchemical Free Energy Simulation (AFES) workflow. Relative binding free energies were calculated with three methods: **Amber-TI, GROMACS-NETI, OpenMM-FEP, and BLaDE-MSLD**.
+We conducted a benchmark study using MolCube’s Alchemical Free Energy Simulator (AFES) workflow. Relative binding free energies were calculated with four methods: **Amber-TI, GROMACS-NETI, OpenMM-FEP, and BLaDE-MSLD**.
 
 In addition to the JACS benchmark set used by Wang et al., we performed two case studies (3BQD and 5EDU) and obtained reliable results.
 
